@@ -4,7 +4,7 @@ const MongoClient = require('mongodb').MongoClient;
 const app = express();
 
 var corsOptions = {
-  origin: "https://st4nleyko.github.io/"
+  origin: "https://st4nleyko.github.io"
 };
 
 app.use(cors(corsOptions));
