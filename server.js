@@ -30,23 +30,25 @@ MongoClient.connect('mongodb+srv://Admin:root@cluster0.5hkr4.mongodb.net/cw2grou
     req.collection = db.collection(collectionName)
     return next()
   })
+  //logger
+  app.use(function(request, response, next) {
+    console.log("Incoming " + request.method + " method to " + request.url);
+    next();
+  });
   //get all from collection
   app.get('/collection/:collectionName', (req, res, next) => {
-    console.log("In comes a " + req.method + " method to " + req.url);    
     req.collection.find({}).toArray((e, results) => {
       if (e) return next(e)
         res.send(results)
     })
   });
   app.post('/collection/:collectionName', (req, res, next) => {
-    console.log("In comes a " + req.method + " method to " + req.url);    
     req.collection.insertOne(req.body, (e, results) => {
     if (e) return next(e)
       res.send(results)
     })  
   });
   app.put('/collection/:collectionName/:id', (req, res, next) => {
-    console.log("In comes a " + req.method + " method to " + req.url);    
     req.collection.updateOne(
       {_id: ObjectID(req.params.id)},
       {$set: req.body},
