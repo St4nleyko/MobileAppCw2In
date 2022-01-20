@@ -2,7 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const MongoClient = require('mongodb').MongoClient;
 const app = express();
-
+var path = require("path");
+var fs = require("fs");
 var corsOptions = {
   origin: "https://st4nleyko.github.io"
 };
@@ -20,6 +21,28 @@ app.get("/", (req, res) => {
   res.json({ message: "Welcome to the backend of the application." });
 });
 
+//file logger
+app.use(function(req, res, next) {
+  var filePath = path.join(__dirname, "img", req.url);
+  console.log('looking for file at: '+filePath);
+    fs.stat(filePath, function(err, fileInfo) {
+      if (err) {
+        next();
+          return;
+        }
+        if (fileInfo.isFile()){
+          res.sendFile(filePath);
+          console.log('file found')}
+        else
+          next();
+    });
+
+  });
+  app.use(function(req, res,next) {
+    console.log("file not found")
+    next();
+    });
+
 // database
 let db;
 MongoClient.connect('mongodb+srv://Admin:root@cluster0.5hkr4.mongodb.net/cw2group?retryWrites=true&w=majority', (err, client) => {
@@ -35,6 +58,8 @@ MongoClient.connect('mongodb+srv://Admin:root@cluster0.5hkr4.mongodb.net/cw2grou
     console.log("Incoming " + request.method + " method to " + request.url);
     next();
   });
+  
+
   //get all from collection
   app.get('/collection/:collectionName', (req, res, next) => {
     req.collection.find({}).toArray((e, results) => {
@@ -59,6 +84,8 @@ MongoClient.connect('mongodb+srv://Admin:root@cluster0.5hkr4.mongodb.net/cw2grou
     })  
   })
 })
+
+
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
