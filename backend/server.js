@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-
+const MongoClient = require('mongodb').MongoClient;
 const app = express();
 
 var corsOptions = {
@@ -21,24 +21,42 @@ app.get("/", (req, res) => {
 });
 
 // database
-const db = require("./app/models");
-db.mongoose
-  .connect(db.url, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
+let db;
+MongoClient.connect('mongodb+srv://Admin:root@cluster0.5hkr4.mongodb.net/cw2group?retryWrites=true&w=majority', (err, client) => {
+  db = client.db('cw2group')
+  const ObjectID = require('mongodb').ObjectID;
+
+  app.param('collectionName', (req, res, next, collectionName) => {
+    req.collection = db.collection(collectionName)
+    return next()
   })
-  .then(() => {
-    console.log("Connected to the database!");
-  })
-  .catch(err => {
-    console.log("Cannot connect to the database!", err);
-    process.exit();
+  //get all from collection
+  app.get('/collection/:collectionName', (req, res, next) => {
+    req.collection.find({}).toArray((e, results) => {
+      if (e) return next(e)
+        res.send(results)
+    })
   });
+  app.post('/collection/:collectionName', (req, res, next) => {
+    req.collection.insertOne(req.body, (e, results) => {
+    if (e) return next(e)
+      res.send(results)
+    })  
+  });
+  app.put('/collection/:collectionName/:id', (req, res, next) => {
+    console.log('putTriggered')
+    console.log(req.body);
+    req.collection.updateOne(
+      {_id: ObjectID(req.params.id)},
+      {$set: req.body},
+      {safe: true, multi: false},
+      (e, result) => {
+        if (e) return next(e)
+          res.send(result)
+    })  
+  })
+})
 
-
-//set router
-  require("./app/routes/lessonRouter")(app);
-  require("./app/routes/userRouter")(app);
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
