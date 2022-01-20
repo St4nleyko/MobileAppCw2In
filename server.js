@@ -23,7 +23,7 @@ app.get("/", (req, res) => {
 
 //file logger
 app.use(function(req, res, next) {
-  var filePath = path.join(__dirname, "img", req.url);
+  var filePath = path.join("img", req.url);
   console.log('looking for file at: '+filePath);
     fs.stat(filePath, function(err, fileInfo) {
       if (err) {
