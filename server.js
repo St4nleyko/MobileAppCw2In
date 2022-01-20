@@ -4,7 +4,7 @@ const MongoClient = require('mongodb').MongoClient;
 const app = express();
 
 var corsOptions = {
-  origin: "https://cst3145mobileapp.herokuapp.com/"
+  origin: "https://st4nleyko.github.io/"
 };
 
 app.use(cors(corsOptions));
